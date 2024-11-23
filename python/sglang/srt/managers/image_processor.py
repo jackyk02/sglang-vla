@@ -6,6 +6,7 @@ import multiprocessing as mp
 import os
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
+import torch
 
 import numpy as np
 import transformers
@@ -15,6 +16,7 @@ from sglang.srt.mm_utils import expand2square, process_anyres_image
 from sglang.srt.server_args import ServerArgs
 from sglang.srt.utils import load_image
 from sglang.utils import get_exception_traceback
+from sglang.srt.layers.openvla import PrismaticProcessor
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +43,8 @@ class BaseImageProcessor(ABC):
             initializer=init_global_processor,
             mp_context=mp.get_context("fork"),
             initargs=(server_args,),
-            max_workers=int(os.environ.get("SGLANG_CPU_COUNT", os.cpu_count())),
+            max_workers=int(os.environ.get(
+                "SGLANG_CPU_COUNT", os.cpu_count())),
         )
 
     @abstractmethod
@@ -86,7 +89,8 @@ class LlavaImageProcessor(BaseImageProcessor):
                 if image_aspect_ratio == "pad":
                     image = expand2square(
                         image,
-                        tuple(int(x * 255) for x in image_processor.image_mean),
+                        tuple(int(x * 255)
+                              for x in image_processor.image_mean),
                     )
                     pixel_values = image_processor(image.convert("RGB"))[
                         "pixel_values"
@@ -106,7 +110,8 @@ class LlavaImageProcessor(BaseImageProcessor):
 
                 return pixel_values, image_hash, image.size
         except Exception:
-            logger.error("Exception in TokenizerManager:\n" + get_exception_traceback())
+            logger.error("Exception in TokenizerManager:\n" +
+                         get_exception_traceback())
 
     async def _process_single_image(
         self, image_data: Union[bytes, str], aspect_ratio: str, grid_pinpoints: str
@@ -203,7 +208,8 @@ class MllamaImageProcessor(BaseImageProcessor):
                 input_text,
             )
         else:
-            image_inputs = self._processor(images, input_text, return_tensors="pt")
+            image_inputs = self._processor(
+                images, input_text, return_tensors="pt")
 
         return image_inputs
 
@@ -240,7 +246,8 @@ class Qwen2VLImageProcessor(BaseImageProcessor):
             initializer=init_global_processor,
             mp_context=mp.get_context("fork"),
             initargs=(server_args,),
-            max_workers=int(os.environ.get("SGLANG_CPU_COUNT", os.cpu_count())),
+            max_workers=int(os.environ.get(
+                "SGLANG_CPU_COUNT", os.cpu_count())),
         )
 
     @staticmethod
@@ -278,7 +285,8 @@ class Qwen2VLImageProcessor(BaseImageProcessor):
 
                 return pixel_values, image_hash, image.size, image_grid_thws
         except Exception:
-            logger.error("Exception in TokenizerManager:\n" + get_exception_traceback())
+            logger.error("Exception in TokenizerManager:\n" +
+                         get_exception_traceback())
 
     async def _process_single_image(self, image_data: Union[bytes, str]):
         if self.executor is not None:
@@ -346,6 +354,24 @@ class Qwen2VLImageProcessor(BaseImageProcessor):
         }
 
 
+class OpenVLAImageProcessor(BaseImageProcessor):
+    async def process_images_async(self, image_data, input_text, request_obj):
+        if not image_data:
+            return None
+        request_obj, model_path = request_obj
+        image_data, image_size = load_image(image_data)
+        image_data = image_data.resize((224, 224))
+
+        assert not isinstance(
+            image_data, list), "OpenVLA only supports single image processing"
+        return {
+            "pixel_values": image_data,
+            "image_hashes": [hash(str(image_data))],
+            "image_sizes": (224, 224),
+            "modalities": request_obj.modalities,
+        }
+
+
 def get_image_processor(
     hf_config, server_args: ServerArgs, processor
 ) -> BaseImageProcessor:
@@ -353,6 +379,8 @@ def get_image_processor(
         return MllamaImageProcessor(hf_config, server_args, processor)
     elif "Qwen2VLForConditionalGeneration" in hf_config.architectures:
         return Qwen2VLImageProcessor(hf_config, server_args, processor.image_processor)
+    elif "OpenVLAForActionPrediction" in hf_config.architectures:
+        return OpenVLAImageProcessor(hf_config, server_args, processor.image_processor)
     else:
         return LlavaImageProcessor(hf_config, server_args, processor.image_processor)
 

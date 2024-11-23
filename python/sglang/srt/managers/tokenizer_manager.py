@@ -209,7 +209,7 @@ class TokenizerManager:
 
         if self.is_generation:
             image_inputs = await self.image_processor.process_images_async(
-                obj.image_data, input_text or input_ids, obj
+                obj.image_data, input_text or input_ids, (obj, self.model_path)
             )
             if image_inputs and "input_ids" in image_inputs:
                 input_ids = image_inputs["input_ids"]
@@ -332,7 +332,8 @@ class TokenizerManager:
                 tmp_obj = copy.copy(objs[i])
                 tokenized_obj = copy.copy(tokenized_objs[i])
                 tokenized_obj.rid = tmp_obj.regenerate_rid()
-                tokenized_obj.sampling_params = copy.copy(tokenized_obj.sampling_params)
+                tokenized_obj.sampling_params = copy.copy(
+                    tokenized_obj.sampling_params)
                 tokenized_obj.sampling_params.max_new_tokens = 0
                 tokenized_obj.stream = False
                 self.send_to_scheduler.send_pyobj(tokenized_obj)
@@ -359,7 +360,8 @@ class TokenizerManager:
             yield outputs
         else:
             rid_to_index = {rid: i for i, rid in enumerate(rids)}
-            task_map = {asyncio.create_task(gen.__anext__()): gen for gen in generators}
+            task_map = {asyncio.create_task(
+                gen.__anext__()): gen for gen in generators}
             while task_map:
                 done, _ = await asyncio.wait(
                     task_map.keys(), return_when=asyncio.FIRST_COMPLETED
@@ -539,7 +541,8 @@ class TokenizerManager:
                     self.model_update_tmp.append(recv_obj)
                     # set future if the all results are recevied
                     if len(self.model_update_tmp) == self.server_args.dp_size:
-                        self.model_update_result.set_result(self.model_update_tmp)
+                        self.model_update_result.set_result(
+                            self.model_update_tmp)
                 continue
             elif isinstance(recv_obj, GetMemPoolSizeReqOutput):
                 if self.server_args.dp_size == 1:
@@ -607,13 +610,15 @@ class TokenizerManager:
                         self.metrics_collector.inc_prompt_tokens(
                             recv_obj.meta_info[i]["prompt_tokens"]
                         )
-                        self.metrics_collector.inc_generation_tokens(completion_tokens)
+                        self.metrics_collector.inc_generation_tokens(
+                            completion_tokens)
                         self.metrics_collector.observe_e2e_request_latency(
                             time.time() - state.created_time
                         )
                         if completion_tokens >= 1:
                             self.metrics_collector.observe_time_per_output_token(
-                                (time.time() - state.created_time) / completion_tokens
+                                (time.time() - state.created_time) /
+                                completion_tokens
                             )
 
     def convert_logprob_style(

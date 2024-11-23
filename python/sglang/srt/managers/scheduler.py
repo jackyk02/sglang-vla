@@ -135,7 +135,8 @@ class Scheduler:
         else:
             self.recv_from_tokenizer = None
             self.send_to_tokenizer = SimpleNamespace(send_pyobj=lambda x: None)
-            self.send_to_detokenizer = SimpleNamespace(send_pyobj=lambda x: None)
+            self.send_to_detokenizer = SimpleNamespace(
+                send_pyobj=lambda x: None)
 
         # Init tokenizer
         self.model_config = ModelConfig(
@@ -313,7 +314,8 @@ class Scheduler:
         if os.getenv("SGLANG_TORCH_PROFILER_DIR", "") == "":
             self.profiler = None
         else:
-            self.torch_profiler_trace_dir = os.getenv("SGLANG_TORCH_PROFILER_DIR")
+            self.torch_profiler_trace_dir = os.getenv(
+                "SGLANG_TORCH_PROFILER_DIR")
             logger.info(
                 "Profiling enabled. Traces will be saved to: %s",
                 self.torch_profiler_trace_dir,
@@ -344,7 +346,8 @@ class Scheduler:
             if self.cur_batch is not None:
                 if self.watchdog_last_forward_ct == self.forward_ct:
                     if time.time() > self.watchdog_last_time + self.watchdog_timeout:
-                        logger.error(f"Watchdog timeout ({self.watchdog_timeout=})")
+                        logger.error(
+                            f"Watchdog timeout ({self.watchdog_timeout=})")
                         break
                 else:
                     self.watchdog_last_forward_ct = self.forward_ct
@@ -482,7 +485,8 @@ class Scheduler:
             recv_reqs = None
 
         if self.tp_size != 1 and not self.server_args.enable_dp_attention:
-            recv_reqs = broadcast_pyobj(recv_reqs, self.tp_rank, self.tp_cpu_group)
+            recv_reqs = broadcast_pyobj(
+                recv_reqs, self.tp_rank, self.tp_cpu_group)
         return recv_reqs
 
     def process_input_requests(self, recv_reqs: List):
@@ -507,7 +511,8 @@ class Scheduler:
                     self.stop_profile()
             elif isinstance(recv_req, OpenSessionReqInput):
                 session_id = self.open_session(recv_req)
-                self.send_to_tokenizer.send_pyobj(OpenSessionReqOutput(session_id))
+                self.send_to_tokenizer.send_pyobj(
+                    OpenSessionReqOutput(session_id))
             elif isinstance(recv_req, CloseSessionReqInput):
                 self.close_session(recv_req)
             elif isinstance(recv_req, GetMemPoolSizeReq):
@@ -641,7 +646,8 @@ class Scheduler:
             ) / 10**9
             self.tree_cache_metrics["hit"] += (adder.log_hit_tokens) / 10**9
             tree_cache_hit_rate = (
-                self.tree_cache_metrics["hit"] / self.tree_cache_metrics["total"]
+                self.tree_cache_metrics["hit"] /
+                self.tree_cache_metrics["total"]
             )
         else:
             tree_cache_hit_rate = 0.0
@@ -664,7 +670,8 @@ class Scheduler:
         if self.enable_metrics:
             self.stats.num_running_reqs = running_bs
             self.stats.num_used_tokens = num_used
-            self.stats.token_usage = round(num_used / self.max_total_num_tokens, 2)
+            self.stats.token_usage = round(
+                num_used / self.max_total_num_tokens, 2)
             self.stats.num_queue_reqs = len(self.waiting_queue) + has_inflight
             self.stats.cache_hit_rate = tree_cache_hit_rate
             self.metrics_collector.log_stats(self.stats)
@@ -678,7 +685,8 @@ class Scheduler:
         )
         self.num_generated_tokens = 0
         self.last_decode_stats_tic = time.time()
-        num_running_reqs = len(self.running_batch.reqs) if self.running_batch else 0
+        num_running_reqs = len(
+            self.running_batch.reqs) if self.running_batch else 0
         logger.info(
             f"Decode batch. "
             f"#running-req: {num_running_reqs}, "
@@ -727,10 +735,12 @@ class Scheduler:
             and not self.last_batch.is_empty()
         ):
             if self.being_chunked_req:
-                self.last_batch.filter_batch(being_chunked_req=self.being_chunked_req)
+                self.last_batch.filter_batch(
+                    being_chunked_req=self.being_chunked_req)
                 self.tree_cache.cache_unfinished_req(self.being_chunked_req)
                 # Inflight request keeps its rid but will get a new req_pool_idx.
-                self.req_to_token_pool.free(self.being_chunked_req.req_pool_idx)
+                self.req_to_token_pool.free(
+                    self.being_chunked_req.req_pool_idx)
                 self.batch_is_full = False
             if not self.last_batch.is_empty():
                 if self.running_batch is None:
@@ -790,7 +800,8 @@ class Scheduler:
         has_inflight = self.being_chunked_req is not None
         if has_inflight:
             self.being_chunked_req.init_next_round_input()
-            self.being_chunked_req = adder.add_inflight_req(self.being_chunked_req)
+            self.being_chunked_req = adder.add_inflight_req(
+                self.being_chunked_req)
 
         if self.lora_paths:
             lora_set = (
@@ -817,7 +828,8 @@ class Scheduler:
                 self.batch_is_full = True
                 break
 
-            req.init_next_round_input(None if prefix_computed else self.tree_cache)
+            req.init_next_round_input(
+                None if prefix_computed else self.tree_cache)
             res = adder.add_one_req(req)
             if res != AddReqResult.CONTINUE:
                 if res == AddReqResult.NO_TOKEN:
@@ -841,7 +853,8 @@ class Scheduler:
 
         # Print stats
         if self.tp_rank == 0:
-            self.log_prefill_stats(adder, can_run_list, running_bs, has_inflight)
+            self.log_prefill_stats(adder, can_run_list,
+                                   running_bs, has_inflight)
 
         # Create a new batch
         new_batch = ScheduleBatch.init_new(
@@ -897,7 +910,8 @@ class Scheduler:
 
         # Check for jump-forward
         if not self.disable_jump_forward:
-            jump_forward_reqs = batch.check_for_jump_forward(self.pad_input_ids_func)
+            jump_forward_reqs = batch.check_for_jump_forward(
+                self.pad_input_ids_func)
             self.waiting_queue.extend(jump_forward_reqs)
             if batch.is_empty():
                 self.running_batch = None
@@ -933,7 +947,8 @@ class Scheduler:
         else:  # embedding or reward model
             assert batch.extend_num_tokens != 0
             model_worker_batch = batch.get_model_worker_batch()
-            embeddings = self.tp_worker.forward_batch_embedding(model_worker_batch)
+            embeddings = self.tp_worker.forward_batch_embedding(
+                model_worker_batch)
             ret = embeddings, model_worker_batch.bid
         return ret
 
@@ -955,13 +970,15 @@ class Scheduler:
             logits_output, next_token_ids, bid = result
 
             if self.enable_overlap:
-                logits_output, next_token_ids = self.tp_worker.resolve_batch_result(bid)
+                logits_output, next_token_ids = self.tp_worker.resolve_batch_result(
+                    bid)
             else:
                 # Move next_token_ids and logprobs to cpu
                 if batch.return_logprob:
                     logits_output.next_token_logprobs = (
                         logits_output.next_token_logprobs[
-                            torch.arange(len(next_token_ids), device=self.device),
+                            torch.arange(len(next_token_ids),
+                                         device=self.device),
                             next_token_ids,
                         ].tolist()
                     )
@@ -1035,7 +1052,8 @@ class Scheduler:
         self.num_generated_tokens += len(batch.reqs)
 
         if self.enable_overlap:
-            logits_output, next_token_ids = self.tp_worker.resolve_batch_result(bid)
+            logits_output, next_token_ids = self.tp_worker.resolve_batch_result(
+                bid)
             next_token_logprobs = logits_output.next_token_logprobs
         else:
             # Move next_token_ids and logprobs to cpu
@@ -1054,7 +1072,7 @@ class Scheduler:
                 continue
 
             if self.enable_overlap and req.finished():
-                self.token_to_kv_pool.free(batch.out_cache_loc[i : i + 1])
+                self.token_to_kv_pool.free(batch.out_cache_loc[i: i + 1])
                 continue
 
             req.completion_tokens_wo_jump_forward += 1
@@ -1072,7 +1090,8 @@ class Scheduler:
                     (next_token_logprobs[i], next_token_id)
                 )
                 if req.top_logprobs_num > 0:
-                    req.output_top_logprobs.append(logits_output.output_top_logprobs[i])
+                    req.output_top_logprobs.append(
+                        logits_output.output_top_logprobs[i])
 
         if batch.next_batch_sampling_info:
             batch.next_batch_sampling_info.update_regex_vocab_mask()
@@ -1111,15 +1130,16 @@ class Scheduler:
 
         if req.input_token_logprobs is None:
             input_token_logprobs = output.input_token_logprobs[
-                pt : pt + num_input_logprobs - 1 - req.last_update_decode_tokens
+                pt: pt + num_input_logprobs - 1 - req.last_update_decode_tokens
             ]
             input_token_ids = req.fill_ids[
                 len(req.fill_ids)
                 - num_input_logprobs
-                + 1 : len(req.fill_ids)
+                + 1: len(req.fill_ids)
                 - req.last_update_decode_tokens
             ]
-            req.input_token_logprobs = list(zip(input_token_logprobs, input_token_ids))
+            req.input_token_logprobs = list(
+                zip(input_token_logprobs, input_token_ids))
 
             if (
                 req.logprob_start_len == 0
@@ -1137,13 +1157,13 @@ class Scheduler:
                             pt
                             + num_input_logprobs
                             - 1
-                            - req.last_update_decode_tokens : pt
+                            - req.last_update_decode_tokens: pt
                             + num_input_logprobs
                             - 1
                         ],
                         req.fill_ids[
                             len(req.fill_ids)
-                            - req.last_update_decode_tokens : len(req.fill_ids)
+                            - req.last_update_decode_tokens: len(req.fill_ids)
                         ],
                     )
                 )
@@ -1157,7 +1177,7 @@ class Scheduler:
 
             if req.last_update_decode_tokens != 0:
                 req.output_top_logprobs.extend(
-                    output.input_top_logprobs[i][-req.last_update_decode_tokens :]
+                    output.input_top_logprobs[i][-req.last_update_decode_tokens:]
                 )
             req.output_top_logprobs.append(output.output_top_logprobs[i])
 
@@ -1204,7 +1224,8 @@ class Scheduler:
                     output_spaces_between_special_tokens.append(
                         req.sampling_params.spaces_between_special_tokens
                     )
-                    output_no_stop_trim.append(req.sampling_params.no_stop_trim)
+                    output_no_stop_trim.append(
+                        req.sampling_params.no_stop_trim)
                     output_session_ids.append(req.session_id)
 
                     meta_info = {
@@ -1212,6 +1233,7 @@ class Scheduler:
                         "completion_tokens": len(req.output_ids),
                         "completion_tokens_wo_jump_forward": req.completion_tokens_wo_jump_forward,
                         "cached_tokens": req.cached_tokens,
+                        "output_ids": req.output_ids,
                         "finish_reason": (
                             req.finished_reason.to_json()
                             if req.finished_reason is not None
@@ -1287,7 +1309,8 @@ class Scheduler:
             )
             num_ready_reqs_max = tensor.item()
             for i in range(num_ready_reqs, num_ready_reqs_max):
-                self.grammar_queue[i].grammar = self.grammar_queue[i].grammar.result()
+                self.grammar_queue[i].grammar = self.grammar_queue[i].grammar.result(
+                )
             num_ready_reqs = num_ready_reqs_max
 
         self.waiting_queue.extend(self.grammar_queue[:num_ready_reqs])
@@ -1355,7 +1378,8 @@ class Scheduler:
             raise RuntimeError("Profiler is not enabled.")
         self.profiler.stop()
         self.profiler.export_chrome_trace(
-            self.torch_profiler_trace_dir + "/" + str(time.time()) + ".trace.json.gz"
+            self.torch_profiler_trace_dir + "/" +
+            str(time.time()) + ".trace.json.gz"
         )
         logger.info("Profiler is done")
 
@@ -1363,7 +1387,8 @@ class Scheduler:
         # handle error
         session_id = recv_req.session_id
         if session_id in self.sessions:
-            logger.warning(f"session id {session_id} already exist, cannot open.")
+            logger.warning(
+                f"session id {session_id} already exist, cannot open.")
         else:
             self.sessions[session_id] = Session(
                 recv_req.capacity_of_str_len, session_id
@@ -1374,7 +1399,8 @@ class Scheduler:
         # handle error
         session_id = recv_req.session_id
         if session_id not in self.sessions:
-            logger.warning(f"session id {session_id} does not exist, cannot delete.")
+            logger.warning(
+                f"session id {session_id} does not exist, cannot delete.")
         else:
             del self.sessions[session_id]
 

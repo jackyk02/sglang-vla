@@ -14,7 +14,7 @@ class ChatTemplate:
     default_system_prompt: str
     role_prefix_and_suffix: Dict[str, Tuple[str, str]]
     stop_str: List[str] = ()
-    image_token: str = "<image>"
+    image_token: str = ""
     style: ChatTemplateStyle = ChatTemplateStyle.PLAIN
 
     def get_prefix_and_suffix(
@@ -24,7 +24,8 @@ class ChatTemplate:
 
         if self.style == ChatTemplateStyle.LLAMA2:
             if role == "system" and not hist_messages:
-                user_prefix, _ = self.role_prefix_and_suffix.get("user", ("", ""))
+                user_prefix, _ = self.role_prefix_and_suffix.get(
+                    "user", ("", ""))
                 system_prefix, system_suffix = self.role_prefix_and_suffix.get(
                     "system", ("", "")
                 )
