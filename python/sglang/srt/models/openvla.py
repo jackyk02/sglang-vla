@@ -248,7 +248,7 @@ class OpenVLAForActionPrediction(PreTrainedModel):
         for i, image_input in enumerate(forward_batch.image_inputs):
             image_offset = 1
             image_size = 256
-            pixel_value = self.processor.process_image(image_input.pixel_values).to(torch.bfloat16).to(0)
+            pixel_value = self.processor.process_image(image_input.pixel_values).to(torch.bfloat16).to("cuda")
             patch_features = self.vision_backbone(pixel_value)
             projected_patch_embeddings = self.projector(patch_features)
             input_embeddings[pt + image_offset : pt + image_offset + image_size] = (
@@ -258,7 +258,7 @@ class OpenVLAForActionPrediction(PreTrainedModel):
 
         image_data = forward_batch.image_inputs[0]
         pixel_value = image_data.pixel_values
-        pixel_value = self.processor.process_image(pixel_value).to(torch.bfloat16).to(0)
+        pixel_value = self.processor.process_image(pixel_value).to(torch.bfloat16).to("cuda")
         
 
         patch_features = self.vision_backbone(pixel_value)
