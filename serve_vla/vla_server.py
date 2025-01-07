@@ -35,7 +35,8 @@ def process_batch(batch_size: int, temp: float, instruction: str, image_path: st
     )
     
     # Convert to numpy arrays instead of lists
-    return [np.array(converter.token_to_action(s.get_meta_info("action")["output_ids"]))
+    return [np.array(s.get_meta_info("action")["output_ids"])
+            for s in states], [np.array(converter.token_to_action(s.get_meta_info("action")["output_ids"]))
             for s in states]
 
 @app.get("/")
@@ -59,7 +60,7 @@ async def process_batch_request(request: Request):
         temperature = float(data.get("temperature", 1.0))
         
         # Process the batch
-        actions = process_batch(
+        output_ids, actions = process_batch(
             batch_size=batch_size,
             temp=temperature,
             instruction=data["instruction"],
@@ -67,7 +68,7 @@ async def process_batch_request(request: Request):
         )
         
         # Convert numpy arrays to json-serializable format using json_numpy
-        response_data = {"actions": actions}
+        response_data = {"output_ids": output_ids, "actions": actions}
         return Response(content=json.dumps(response_data), media_type="application/json")
         
     except Exception as e:
