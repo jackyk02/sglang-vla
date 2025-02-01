@@ -80,24 +80,17 @@ class OpenVLAConfig(PretrainedConfig):
         self.output_projector_states = output_projector_states
 
         # [Contract] All vision backbone parameters are lists =>> supports fused backbones with different preprocessing
-        self.use_fused_vision_backbone = (
-            use_fused_vision_backbone
-            if use_fused_vision_backbone is not None
-            else any(
-                self.vision_backbone_id.startswith(v)
-                for v in ["dinoclip", "dinosiglip"]
-            )
-        )
+        self.use_fused_vision_backbone = False
 
         self.timm_model_ids = [
-            "vit_large_patch14_reg4_dinov2.lvd142m",
+            # "vit_large_patch14_reg4_dinov2.lvd142m",
             "vit_so400m_patch14_siglip_224",
         ]
         self.timm_override_act_layers = TIMM_OVERRIDE_ACT_LAYER[self.vision_backbone_id]
         self.image_sizes = [224, 224]
         self.image_resize_strategy = image_resize_strategy
 
-        self.hf_llm_id = "meta-llama/Llama-2-7b-hf"
+        self.hf_llm_id = "lmsys/vicuna-7b-v1.5"
         self.llm_max_length = llm_max_length
         self.pad_token_id, self.pad_to_multiple_of = pad_token_id, pad_to_multiple_of
 
@@ -213,7 +206,7 @@ class OpenVLAForActionPrediction(PreTrainedModel):
 
         self.language_model.load_weights(weights)
         self.processor = PrismaticProcessor.from_pretrained(
-                "openvla/openvla-7b", trust_remote_code=True
+                "Embodied-CoT/ecot-openvla-7b-bridge", trust_remote_code=True
             )
 
     def forward(
