@@ -96,7 +96,12 @@ class LoRAManager:
     ):
         self.base_model = base_model
         self.lora_paths = lora_paths
-        self.base_hf_config = base_hf_config
+        # self.base_hf_config = base_hf_config
+        from transformers import AutoConfig
+        self.base_hf_config = AutoConfig.from_pretrained(
+            "NousResearch/Llama-2-7b-chat-hf",
+            trust_remote_code=True
+        )
         self.max_loras_per_batch = max_loras_per_batch
         self.load_config = load_config
         self.dtype = dtype
