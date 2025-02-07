@@ -8,14 +8,19 @@ import os
 converter = TokenToAction()
 
 def batch(batch_size, temp):
-    instruction = "close the drawer"
-    prompt = "A chat between a curious user and an artificial intelligence assistant. " + \
-        "The assistant gives helpful, detailed, and polite answers to the user's questions. " + \
-        f"USER: What action should the robot take to {instruction.lower()}? ASSISTANT: TASK:"
-        
+    INSTRUCTION = "place the watermelon on the towel"
+    # Create prompt
+    SYSTEM_PROMPT = (
+        "A chat between a curious user and an artificial intelligence assistant. "
+        "The assistant gives helpful, detailed, and polite answers to the user's questions."
+    )
+    
+    def get_openvla_prompt(instruction: str) -> str:
+        return f"USER: What action should the robot take to {instruction.lower()}? ASSISTANT: TASK:"
+    prompt = get_openvla_prompt(INSTRUCTION)
     arguments = [
         {
-            "image_path": "images/robot.jpg",
+            "image_path": "images/test_obs.jpg",
             "question": prompt,
         }
     ] * batch_size
@@ -28,9 +33,9 @@ def batch(batch_size, temp):
 
 
 if __name__ == '__main__':
-    #python -m sglang.launch_server --model-path openvla/openvla-7b --trust-remote-code --quantization fp8 --port 30000 --disable-radix-cach --dp 2 --tp 2
+    #CUDA_VISIBLE_DEVICES=1 python -m sglang.launch_server --model-path Embodied-CoT/ecot-openvla-7b-bridge --trust-remote-code --port 30000 --disable-radix-cach
     sgl.set_default_backend(sgl.RuntimeEndpoint("http://localhost:30000"))
-    batch_size = 2
-    temperature = 0.1
+    batch_size = 10
+    temperature = 0.2
     actions = batch(batch_size=batch_size, temp=temperature)
     print(actions)
