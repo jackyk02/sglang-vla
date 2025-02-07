@@ -260,7 +260,7 @@ class OpenVLAForActionPrediction(PreTrainedModel):
             projected_patch_embeddings
         )
         return self.language_model(
-            input_ids=None,
+            input_ids=input_ids,
             positions=positions,
             forward_batch=forward_batch,
             input_embeds=input_embeddings,
