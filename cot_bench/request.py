@@ -9,7 +9,7 @@ image_data = "/root/sglang-vla/cot_bench/images/test_obs.jpg"
 def repeat_string(s, batch_size):
     return [s] * batch_size
 
-batch_size = 10
+batch_size = 1
 prompt = repeat_string(prompt, batch_size)
 image_data = repeat_string(image_data, batch_size)
 
@@ -18,6 +18,9 @@ response = requests.post(
     json={
         "text": prompt,
         "image_data": "/root/sglang-vla/cot_bench/images/1.jpg",
+        "lora_path": [
+            "lora1",
+        ],
         # "return_logprob": "True",
         "sampling_params": {
             "temperature": 0,
