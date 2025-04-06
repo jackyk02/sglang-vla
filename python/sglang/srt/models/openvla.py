@@ -95,7 +95,7 @@ class OpenVLAConfig(PretrainedConfig):
         ]
         self.timm_override_act_layers = TIMM_OVERRIDE_ACT_LAYER[self.vision_backbone_id]
         self.image_sizes = [224, 224]
-        self.image_resize_strategy = image_resize_strategy
+        self.image_resize_strategy = None
 
         self.hf_llm_id = "meta-llama/Llama-2-7b-hf"
         self.llm_max_length = llm_max_length
