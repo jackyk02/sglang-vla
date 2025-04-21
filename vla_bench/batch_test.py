@@ -154,7 +154,7 @@ if __name__ == '__main__':
     sgl.set_default_backend(sgl.RuntimeEndpoint("http://localhost:30000"))
     
     # Define test parameters
-    batch_sizes = [1, 2, 4, 8, 16]
+    batch_sizes = [1, 2, 4, 8, 16, 32, 64, 128]
     temperatures = [1.0]
     num_trials = 10
     num_warm_up = 10  # Number of warm-up runs
