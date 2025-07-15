@@ -26,6 +26,11 @@ def letterbox_pad_transform(
 ) -> Image.Image:
     """Given a PIL.Image, pad to square by adding a symmetric border around the height/width."""
     (w, h), max_wh = image.size, max(image.size)
+    
+    # Skip padding if image is already square
+    if w == h:
+        return image
+    
     horizontal_pad, vertical_pad = int((max_wh - w) / 2), int((max_wh - h) / 2)
     padding = (horizontal_pad, vertical_pad, horizontal_pad, vertical_pad)
 
@@ -155,9 +160,24 @@ class PrismaticImageProcessor(ImageProcessingMixin):
         # [Contract] Fused Backbones expect "channel-stacked" inputs; we'll unpack on the model side!
         imgs_t = []
         for idx in range(len(self.input_sizes)):
-            img_idx = TVF.resize(img, **self.tvf_resize_params[idx])
-            img_idx = TVF.center_crop(img_idx, **self.tvf_crop_params[idx])
-            img_idx_t = TVF.to_tensor(img_idx)
+            current_img = img
+            
+            # Check if resize is needed
+            target_size = self.tvf_resize_params[idx]["size"]
+            if isinstance(target_size, int):
+                target_size = (target_size, target_size)
+            elif len(target_size) == 1:
+                target_size = (target_size[0], target_size[0])
+            
+            if current_img.size != target_size:
+                current_img = TVF.resize(current_img, **self.tvf_resize_params[idx])
+            
+            # Check if center crop is needed
+            crop_size = self.tvf_crop_params[idx]["output_size"]
+            if current_img.size != crop_size:
+                current_img = TVF.center_crop(current_img, **self.tvf_crop_params[idx])
+            
+            img_idx_t = TVF.to_tensor(current_img)
             img_idx_t = TVF.normalize(img_idx_t, **self.tvf_normalize_params[idx])
             imgs_t.append(img_idx_t)
 
