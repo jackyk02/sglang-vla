@@ -17,7 +17,8 @@ response = requests.post(
     "http://localhost:30000/generate",
     json={
         "text": prompt,
-        "image_data": "https://raw.githubusercontent.com/MichalZawalski/embodied-CoT/main/test_obs.png",
+        # "image_data": image_data,
+        "image_data": "https://github.com/jackyk02/sglang-vla/blob/74c349a2fc47187bcf14480574e6ed29b32fc678/cot_bench/images/resized_image.jpg?raw=true",
         # "return_logprob": "True",
         "sampling_params": {
             "temperature": 0,
