@@ -37,7 +37,7 @@ def main():
     print(f"Prompt: {prompt}")
     
     # Step 3: Prepare batch data
-    batch_size = 1
+    batch_size = 5
     prompt_batch = repeat_string(prompt, batch_size)
     # Convert to absolute path for the request
     absolute_image_path = os.path.abspath(processed_image_path)
@@ -51,7 +51,7 @@ def main():
             "text": prompt_batch,
             "image_data": image_batch,
             "sampling_params": {
-                "temperature": 0,
+                "temperature": 0.5,
                 "max_new_tokens": 2048,
             },
         },
@@ -63,7 +63,7 @@ def main():
         print("\n" + "="*50)
         print("INFERENCE RESULT:")
         print("="*50)
-        print(result[0]['text'])
+        print(result)
         print("="*50)
     else:
         print(f"Error: HTTP {response.status_code}")
