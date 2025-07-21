@@ -1,62 +1,114 @@
-<div align="center"  id="sglangtop">
-<img src="https://raw.githubusercontent.com/sgl-project/sglang/main/assets/logo.png" alt="logo" width="400" margin="10px"></img>
-
-[![PyPI](https://img.shields.io/pypi/v/sglang)](https://pypi.org/project/sglang)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/sglang)
-[![license](https://img.shields.io/github/license/sgl-project/sglang.svg)](https://github.com/sgl-project/sglang/tree/main/LICENSE)
-[![issue resolution](https://img.shields.io/github/issues-closed-raw/sgl-project/sglang)](https://github.com/sgl-project/sglang/issues)
-[![open issues](https://img.shields.io/github/issues-raw/sgl-project/sglang)](https://github.com/sgl-project/sglang/issues)
-[![](https://img.shields.io/badge/Gurubase-(experimental)-006BFF)](https://gurubase.io/g/sglang)
-
+<div align="center" id="sglangtop">
+<img src="assets/logo.png" alt="SGLang VLA Logo" width="400" margin="10px"></img>
 </div>
 
---------------------------------------------------------------------------------
+---
 
-| [**Blog**](https://lmsys.org/blog/2024-07-25-sglang-llama3/) | [**Documentation**](https://sgl-project.github.io/) | [**Join Slack**](https://join.slack.com/t/sgl-fru7574/shared_invite/zt-2tmmp6flg-89dOlJW2TjnBrTRk1I_~GA) |
-[**Join Bi-Weekly Development Meeting**](https://docs.google.com/document/d/1xEow4eIM152xNcRxqZz9VEcOiTQo8-CEuuQ5qTmkt-E/edit?usp=sharing) | [**Slides**](https://github.com/sgl-project/sgl-learning-materials?tab=readme-ov-file#slides) |
+# SGLang VLA: Optimized Serving Engine for OpenVLA CoT
 
-## News
-- [2024/10] 🔥 The First SGLang Online Meetup ([slides](https://github.com/sgl-project/sgl-learning-materials?tab=readme-ov-file#the-first-sglang-online-meetup)).
-- [2024/09] SGLang v0.3 Release: 7x Faster DeepSeek MLA, 1.5x Faster torch.compile, Multi-Image/Video LLaVA-OneVision ([blog](https://lmsys.org/blog/2024-09-04-sglang-v0-3/)).
-- [2024/07] Faster Llama3 Serving with SGLang Runtime (vs. TensorRT-LLM, vLLM) ([blog](https://lmsys.org/blog/2024-07-25-sglang-llama3/)).
+This repository provides a **high-performance serving engine for OpenVLA** and other Prismatic-VLM models.
 
-<details>
-<summary>More</summary>
+## 🛠️ Prerequisites
 
-- [2024/02] SGLang enables **3x faster JSON decoding** with compressed finite state machine ([blog](https://lmsys.org/blog/2024-02-05-compressed-fsm/)).
-- [2024/04] SGLang is used by the official **LLaVA-NeXT (video)** release ([blog](https://llava-vl.github.io/blog/2024-04-30-llava-next-video/)).
-- [2024/01] SGLang provides up to **5x faster inference** with RadixAttention ([blog](https://lmsys.org/blog/2024-01-17-sglang/)).
-- [2024/01] SGLang powers the serving of the official **LLaVA v1.6** release demo ([usage](https://github.com/haotian-liu/LLaVA?tab=readme-ov-file#demo)).
+- **Python**: 3.9 or higher
+- **CUDA**: Compatible GPU with CUDA 12.1 support
+- **System**: Linux-based environment recommended
 
-</details>
+## 📦 Environment Setup
 
-## About
-SGLang is a fast serving framework for large language models and vision language models.
-It makes your interaction with models faster and more controllable by co-designing the backend runtime and frontend language.
-The core features include:
+### 1. Create and Activate Conda Environment
 
-- **Fast Backend Runtime**: Provides efficient serving with RadixAttention for prefix caching, jump-forward constrained decoding, continuous batching, token attention (paged attention), tensor parallelism, FlashInfer kernels, chunked prefill, and quantization (INT4/FP8/AWQ/GPTQ).
-- **Flexible Frontend Language**: Offers an intuitive interface for programming LLM applications, including chained generation calls, advanced prompting, control flow, multi-modal inputs, parallelism, and external interactions.
-- **Extensive Model Support**: Supports a wide range of generative models (Llama, Gemma, Mistral, QWen, DeepSeek, LLaVA, etc.), embedding models (e5-mistral, gte, mcdse) and reward models (Skywork), with easy extensibility for integrating new models.
-- **Active Community**: SGLang is open-source and backed by an active community with industry adoption.
+```bash
+conda create -n sglang-vla python=3.9 -y
+conda activate sglang-vla
+```
 
-## Getting Started
-Install SGLang: See [https://sgl-project.github.io/start/install.html](https://sgl-project.github.io/start/install.html)
+### 2. Install Dependencies
 
-Send requests: See [https://sgl-project.github.io/start/send_request.html](https://sgl-project.github.io/start/send_request.html)
+Install the required packages in the following order:
 
-## Backend: SGLang Runtime (SRT)
-See [https://sgl-project.github.io/backend/backend.html](https://sgl-project.github.io/backend/backend.html)
+```bash
+# Core SGLang package
+pip install -e "python[all]"
 
-## Frontend: Structured Generation Language (SGLang)
-See [https://sgl-project.github.io/frontend/frontend.html](https://sgl-project.github.io/frontend/frontend.html)
+# Additional utilities
+pip install json_numpy
 
-## Benchmark And Performance
-Learn more in our release blogs: [v0.2 blog](https://lmsys.org/blog/2024-07-25-sglang-llama3/), [v0.3 blog](https://lmsys.org/blog/2024-09-04-sglang-v0-3/)
+# GPU acceleration (CUDA 12.1 + PyTorch 2.4)
+pip install flashinfer -i https://flashinfer.ai/whl/cu121/torch2.4/
 
-## Roadmap
-[Development Roadmap (2024 Q4)](https://github.com/sgl-project/sglang/issues/1487)
+# Vision and ML dependencies
+pip install timm==0.9.10 openpyxl==3.1.5
 
-## Citation And Acknowledgment
-Please cite our paper, [SGLang: Efficient Execution of Structured Language Model Programs](https://arxiv.org/abs/2312.07104), if you find the project useful.
-We also learned from the design and reused code from the following projects: [Guidance](https://github.com/guidance-ai/guidance), [vLLM](https://github.com/vllm-project/vllm), [LightLLM](https://github.com/ModelTC/lightllm), [FlashInfer](https://github.com/flashinfer-ai/flashinfer), [Outlines](https://github.com/outlines-dev/outlines), and [LMQL](https://github.com/eth-sri/lmql).
+# Web server components
+pip install fastapi uvicorn
+
+# Framework dependencies
+pip install tensorflow==2.19.0
+pip install transformers==4.51.3
+```
+
+## 🚀 Quick Start
+
+### 1. Launch the Inference Server
+
+Start the OpenVLA inference server:
+
+```bash
+conda activate sglang-vla
+python -m sglang.launch_server \
+    --model-path Embodied-CoT/ecot-openvla-7b-bridge \
+    --trust-remote-code \
+    --port 30000 \
+    --disable-radix-cache
+```
+
+The server will be available at `http://localhost:30000` once started.
+
+### 2. Run Basic Inference Example
+
+Test the setup with a simple inference example:
+
+```bash
+python traces/example.py
+```
+
+## 📊 Working with Trajectories
+
+### Extract Trajectory Data
+
+Download and extract trajectory URLs from the dataset:
+
+```bash
+cd traces
+python extract_trajectories.py
+```
+
+This script will create an `extracted_trajectories/` folder containing 10 trajectory URLs for processing.
+
+### Generate Reasoning Traces
+
+Process the extracted trajectories to generate reasoning traces:
+
+```bash
+cd traces
+python batch_inference.py
+```
+
+**Output**: The reasoning traces and logs will be saved in the `traces/logs/` directory.
+
+## 📁 Repository Structure
+
+```
+traces/
+├── example.py              # Basic inference example
+├── extract_trajectories.py # Trajectory extraction script
+├── batch_inference.py      # Batch processing for reasoning traces
+├── image_transform.py      # Image preprocessing utilities
+├── token2action.py         # Token-to-action conversion
+├── extracted_trajectories/ # Downloaded trajectory URLs
+├── processed_images/       # Processed image data
+└── logs/                   # Generated reasoning traces and logs
+``
+
+

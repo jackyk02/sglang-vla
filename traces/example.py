@@ -37,7 +37,7 @@ def main():
     print(f"Prompt: {prompt}")
     
     # Step 3: Prepare batch data
-    batch_size = 5
+    batch_size = 1
     prompt_batch = repeat_string(prompt, batch_size)
     # Convert to absolute path for the request
     absolute_image_path = os.path.abspath(processed_image_path)
@@ -51,7 +51,7 @@ def main():
             "text": prompt_batch,
             "image_data": image_batch,
             "sampling_params": {
-                "temperature": 0.5,
+                "temperature": 0,
                 "max_new_tokens": 2048,
             },
         },

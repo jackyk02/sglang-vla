@@ -1,0 +1,11 @@
+image_number,trajectory_path,instruction
+1,datacol1_toykitchen1/many_skills/02/2023-03-15_14-02-55/raw/traj_group0/traj4,put the green and yellow thing on the botton left burner
+2,datacol1_toykitchen6/pnp_sweep/04/2023-01-25_18-48-39/raw/traj_group0/traj6,put the knife on the left side of the burner
+3,datacol2_folding_table/stack_blocks/01/2023-05-29_10-36-05/raw/traj_group0/traj0,put the green block on top of the yellow block
+4,datacol2_laundry_machine/pnp_sweep/00/2023-02-10_11-41-14/raw/traj_group0/traj0,place the blue cloth inside the washer.
+5,datacol2_toykitchen7/many_skills/06/2023-04-13_15-27-06/raw/traj_group0/traj9,moved the pot from the top to the bottom of the table
+6,datacol2_toykitchen2/many_skills/19/2023-03-08_15-25-38/raw/traj_group0/traj10,push the tin can to the lower left side of the table
+7,deepthought_folding_table/stack_blocks/11/2023-05-01_15-35-39/raw/traj_group0/traj5,put one block on top of the arch
+8,deepthought_robot_desk/drawer_pnp/18/2023-04-13_10-29-21/raw/traj_group0/traj13,close the drawer.
+9,deepthought_toykitchen1/many_skills/05/2023-04-04_13-11-59/raw/traj_group0/traj13,Put the pot in the bottom left burner
+10,datacol2_toykitchen2/many_skills/09/2023-03-08_14-08-59/raw/traj_group0/traj7,move the blue fork to the upper right side of the table
