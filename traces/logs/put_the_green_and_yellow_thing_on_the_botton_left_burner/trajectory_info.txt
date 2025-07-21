@@ -1,0 +1,2 @@
+Trajectory Path: datacol1_toykitchen1/many_skills/02/2023-03-15_14-02-55/raw/traj_group0/traj4
+Image Number: 1

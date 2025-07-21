@@ -1,0 +1,2 @@
+Trajectory Path: deepthought_robot_desk/drawer_pnp/18/2023-04-13_10-29-21/raw/traj_group0/traj13
+Image Number: 8

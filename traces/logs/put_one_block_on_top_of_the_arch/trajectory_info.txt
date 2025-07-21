@@ -1,0 +1,2 @@
+Trajectory Path: deepthought_folding_table/stack_blocks/11/2023-05-01_15-35-39/raw/traj_group0/traj5
+Image Number: 7

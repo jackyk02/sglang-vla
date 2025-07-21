@@ -1,0 +1,2 @@
+Trajectory Path: datacol2_folding_table/stack_blocks/01/2023-05-29_10-36-05/raw/traj_group0/traj0
+Image Number: 3

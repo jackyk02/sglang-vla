@@ -1,0 +1,2 @@
+Trajectory Path: datacol2_laundry_machine/pnp_sweep/00/2023-02-10_11-41-14/raw/traj_group0/traj0
+Image Number: 4

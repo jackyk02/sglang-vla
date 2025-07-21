@@ -1,0 +1,2 @@
+Trajectory Path: deepthought_toykitchen1/many_skills/05/2023-04-04_13-11-59/raw/traj_group0/traj13
+Image Number: 9

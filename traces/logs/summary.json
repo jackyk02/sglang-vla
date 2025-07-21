@@ -1,0 +1,73 @@
+{
+  "timestamp": "2025-07-21T17:12:24.761150",
+  "total_datapoints": 10,
+  "temperature_configs": [
+    {
+      "temperature": 0.0,
+      "samples": 1,
+      "folder": "temp_0.0"
+    },
+    {
+      "temperature": 0.5,
+      "samples": 10,
+      "folder": "temp_0.5"
+    },
+    {
+      "temperature": 1.0,
+      "samples": 10,
+      "folder": "temp_1.0"
+    }
+  ],
+  "datapoints": [
+    {
+      "image_number": 1,
+      "trajectory_path": "datacol1_toykitchen1/many_skills/02/2023-03-15_14-02-55/raw/traj_group0/traj4",
+      "instruction": "put the green and yellow thing on the botton left burner"
+    },
+    {
+      "image_number": 2,
+      "trajectory_path": "datacol1_toykitchen6/pnp_sweep/04/2023-01-25_18-48-39/raw/traj_group0/traj6",
+      "instruction": "put the knife on the left side of the burner"
+    },
+    {
+      "image_number": 3,
+      "trajectory_path": "datacol2_folding_table/stack_blocks/01/2023-05-29_10-36-05/raw/traj_group0/traj0",
+      "instruction": "put the green block on top of the yellow block"
+    },
+    {
+      "image_number": 4,
+      "trajectory_path": "datacol2_laundry_machine/pnp_sweep/00/2023-02-10_11-41-14/raw/traj_group0/traj0",
+      "instruction": "place the blue cloth inside the washer."
+    },
+    {
+      "image_number": 5,
+      "trajectory_path": "datacol2_toykitchen7/many_skills/06/2023-04-13_15-27-06/raw/traj_group0/traj9",
+      "instruction": "moved the pot from the top to the bottom of the table"
+    },
+    {
+      "image_number": 6,
+      "trajectory_path": "datacol2_toykitchen2/many_skills/19/2023-03-08_15-25-38/raw/traj_group0/traj10",
+      "instruction": "push the tin can to the lower left side of the table"
+    },
+    {
+      "image_number": 7,
+      "trajectory_path": "deepthought_folding_table/stack_blocks/11/2023-05-01_15-35-39/raw/traj_group0/traj5",
+      "instruction": "put one block on top of the arch"
+    },
+    {
+      "image_number": 8,
+      "trajectory_path": "deepthought_robot_desk/drawer_pnp/18/2023-04-13_10-29-21/raw/traj_group0/traj13",
+      "instruction": "close the drawer."
+    },
+    {
+      "image_number": 9,
+      "trajectory_path": "deepthought_toykitchen1/many_skills/05/2023-04-04_13-11-59/raw/traj_group0/traj13",
+      "instruction": "Put the pot in the bottom left burner"
+    },
+    {
+      "image_number": 10,
+      "trajectory_path": "datacol2_toykitchen2/many_skills/09/2023-03-08_14-08-59/raw/traj_group0/traj7",
+      "instruction": "move the blue fork to the upper right side of the table"
+    }
+  ]
+}

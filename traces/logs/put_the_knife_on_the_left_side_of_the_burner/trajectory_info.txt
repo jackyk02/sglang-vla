@@ -1,0 +1,2 @@
+Trajectory Path: datacol1_toykitchen6/pnp_sweep/04/2023-01-25_18-48-39/raw/traj_group0/traj6
+Image Number: 2
