@@ -143,6 +143,19 @@ def prepare_data_for_analysis(all_data):
     # Convert to numpy array
     actions_array = np.array(actions_list)
     
+    # Apply threshold to gripper dimension (index 6) to make it binary
+    if len(actions_array) > 0 and actions_array.shape[1] > 6:
+        gripper_values = actions_array[:, 6]
+        print(f"\nApplying gripper threshold (0.5):")
+        print(f"  Original gripper range: [{np.min(gripper_values):.3f}, {np.max(gripper_values):.3f}]")
+        
+        # Apply threshold: values >= 0.5 become 1, values < 0.5 become 0
+        actions_array[:, 6] = (gripper_values >= 0.5).astype(float)
+        
+        print(f"  Thresholded gripper values: {np.unique(actions_array[:, 6])}")
+        print(f"  Gripper=1 count: {np.sum(actions_array[:, 6] == 1)}")
+        print(f"  Gripper=0 count: {np.sum(actions_array[:, 6] == 0)}")
+    
     print(f"\nPrepared data for analysis:")
     print(f"  Total samples: {len(actions_list)}")
     print(f"  Action dimensions: {actions_array.shape[1] if len(actions_array) > 0 else 0}")
