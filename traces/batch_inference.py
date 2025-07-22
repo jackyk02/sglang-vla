@@ -5,6 +5,7 @@ import json
 import shutil
 from datetime import datetime
 from image_transform import process_image
+from token2action import TokenToAction
 
 # Configuration
 EXTRACTED_TRAJECTORIES_DIR = "./extracted_trajectories/"
@@ -121,22 +122,71 @@ def save_results(log_base_dir, datapoint, temp_config, results):
     temp_dir = os.path.join(instruction_dir, temp_config["folder"])
     os.makedirs(temp_dir, exist_ok=True)
     
-    # Save inference results
+    # Initialize TokenToAction converter
+    token_to_action = TokenToAction()
+    
+    # Process results to extract continuous actions
+    processed_results = []
+    if results:
+        # Handle case where results is a list of result objects (API response format)
+        results_list = results if isinstance(results, list) else [results]
+        
+        for i, result in enumerate(results_list):
+            # Copy the original result
+            processed_result = result.copy()
+            
+            if 'meta_info' in result and 'output_ids' in result['meta_info']:
+                output_ids = result['meta_info']['output_ids']
+                if len(output_ids) >= 8:  # Ensure we have at least 8 tokens (7 action + 1 final)
+                    # Extract the 7 action tokens (before the final token which should be 2)
+                    action_tokens = output_ids[-8:-1]  # Get 7 tokens before the last one
+                    try:
+                        # Convert action tokens to continuous actions
+                        continuous_actions = token_to_action.convert(action_tokens)
+                        # Add continuous actions to the result
+                        processed_result['continuous_actions'] = continuous_actions.tolist()
+                        print(f"    Converted action tokens to continuous actions for sample {i+1}")
+                    except Exception as e:
+                        print(f"Warning: Failed to convert action tokens for result {i}: {str(e)}")
+                        processed_result['continuous_actions'] = None
+                else:
+                    processed_result['continuous_actions'] = None
+                    print(f"Warning: Not enough tokens for action extraction in result {i}")
+            else:
+                processed_result['continuous_actions'] = None
+                print(f"Warning: No output_ids found in result {i}")
+            
+            processed_results.append(processed_result)
+    
+    # Save inference results with continuous actions
     results_file = os.path.join(temp_dir, "inference_results.json")
     with open(results_file, 'w') as f:
         json.dump({
             "temperature": temp_config["temperature"],
             "samples_requested": temp_config["samples"],
-            "results": results
+            "results": processed_results
         }, f, indent=2)
     
     # Save individual outputs
-    if results and 'text' in results:
-        outputs = results['text'] if isinstance(results['text'], list) else [results['text']]
-        for i, output in enumerate(outputs):
-            output_file = os.path.join(temp_dir, f"output_{i+1}.txt")
-            with open(output_file, 'w') as f:
-                f.write(output)
+    if processed_results:
+        for i, result in enumerate(processed_results):
+            if 'text' in result:
+                output_file = os.path.join(temp_dir, f"output_{i+1}.txt")
+                with open(output_file, 'w') as f:
+                    f.write(result['text'])
+    
+    # Save continuous actions separately for easy access
+    if processed_results:
+        actions_file = os.path.join(temp_dir, "continuous_actions.json")
+        actions_data = {
+            "actions": [result.get('continuous_actions') for result in processed_results],
+            "temperature": temp_config["temperature"],
+            "instruction": datapoint['instruction'],
+            "num_samples": len(processed_results)
+        }
+        
+        with open(actions_file, 'w') as f:
+            json.dump(actions_data, f, indent=2)
 
 def process_datapoint(datapoint, log_base_dir):
     """Process a single datapoint with all temperature configurations."""
